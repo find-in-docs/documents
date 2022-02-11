@@ -5,8 +5,6 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +17,9 @@ to send and receive messages using protobufs. It will process the messages and t
 to the database to complete the requests. It will send a response message back for
 each request message`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("serve called")
+
+		sidecar := conn.Connect()
+		sidecar.Register()
 	},
 }
 
