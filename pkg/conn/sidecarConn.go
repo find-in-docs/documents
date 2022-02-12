@@ -41,7 +41,7 @@ func (sc *SC) Register() error {
 	debounce := Debounce{ delay: 2 }
 	retry := Retry{ Retries: 3, delay: 1 }
 
-	rMsg.limits = [circuit, debounce, retry]
+	rMsg.limits = [][circuit, debounce, retry]
 
 	sc.client.Register(context.Background(), rMsg)
 }
