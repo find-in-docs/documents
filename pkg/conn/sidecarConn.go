@@ -28,6 +28,8 @@ func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
 		os.Exit(-1)
 	}
 
+	fmt.Printf("conn: %v\n", conn)
+
 	client := messages.NewSidecarClient(conn)
 	fmt.Printf("GRPC connection to sidecar created\n")
 
