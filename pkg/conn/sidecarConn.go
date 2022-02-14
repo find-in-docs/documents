@@ -8,6 +8,7 @@ import (
 
 	"github.com/samirgadkari/sidecar/protos/v1/messages"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -15,21 +16,22 @@ type SC struct {
 	client messages.SidecarClient
 }
 
-func Connect(serverAddr string) (*SC, error) {
+func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
 
 	// var opts []grpc.DialOption
 
-	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
+	fmt.Printf("serverAddr: %s\n", serverAddr)
+	conn, err := grpc.Dial(serverAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("Error creating GRPC channel\n:\terr: %v\n", err)
 		os.Exit(-1)
 	}
 
-	defer conn.Close()
-
 	client := messages.NewSidecarClient(conn)
+	fmt.Printf("GRPC connection to sidecar created\n")
 
-	return &SC{client}, nil
+	return conn, &SC{client}, nil
 }
 
 func (sc *SC) Register() error {
@@ -71,7 +73,14 @@ func (sc *SC) Register() error {
 		RetryDelay:              retryDelay,
 	}
 
-	sc.client.Register(context.Background(), rMsg)
+	rRsp, err := sc.client.Register(context.Background(), rMsg)
+	if err != nil {
+		fmt.Printf("Sending Registration caused error:\n\terr: %v\n", err)
+		return err
+	}
 
+	fmt.Printf("Registration message sent\n\tRegRsp: %v\n", rRsp)
+
+	time.Sleep(5 * time.Second)
 	return nil
 }
