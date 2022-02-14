@@ -17,9 +17,9 @@ type SC struct {
 
 func Connect(serverAddr string) (*SC, error) {
 
-	var opts []grpc.DialOption
+	// var opts []grpc.DialOption
 
-	conn, err := grpc.Dial(serverAddr, opts...)
+	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("Error creating GRPC channel\n:\terr: %v\n", err)
 		os.Exit(-1)
