@@ -7,6 +7,7 @@ package cmd
 import (
 	"github.com/samirgadkari/postgresService/pkg/conn"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // serveCmd represents the serve command
@@ -19,7 +20,13 @@ to the database to complete the requests. It will send a response message back f
 each request message`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		sidecar := conn.Connect()
+		// thisServiceAddr := viper.GetString("thisServiceAddr")
+		sidecarServiceAddr := viper.GetString("sidecarServiceAddr")
+		sidecar, err := conn.Connect(sidecarServiceAddr)
+		if err != nil {
+			return
+		}
+
 		sidecar.Register()
 	},
 }

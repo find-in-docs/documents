@@ -4,10 +4,11 @@ go 1.17
 
 require (
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/samirgadkari/sidecar v0.0.0-20220211202011-75da452850cc
+	github.com/samirgadkari/sidecar v0.0.0-20220214020828-899d416cbcc4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
 	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
@@ -35,7 +36,6 @@ require (
 	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
