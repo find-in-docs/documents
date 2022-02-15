@@ -81,8 +81,8 @@ func (sc *SC) Register() error {
 		return err
 	}
 
-	fmt.Printf("Registration message sent\n\tRegRsp: %v\n", rRsp)
+	fmt.Printf("Registration message sent\n\tRegRsp: %v\n\tStatus: %d\n",
+		*rRsp, rRsp.Header.Status)
 
-	time.Sleep(5 * time.Second)
 	return nil
 }
