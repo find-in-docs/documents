@@ -13,7 +13,10 @@ import (
 )
 
 type SC struct {
-	client messages.SidecarClient
+	client      messages.SidecarClient
+	srcServType string
+	dstServType string
+	servId      []byte
 }
 
 func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
@@ -33,7 +36,7 @@ func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
 	client := messages.NewSidecarClient(conn)
 	fmt.Printf("GRPC connection to sidecar created\n")
 
-	return conn, &SC{client}, nil
+	return conn, &SC{client, "", "", []byte("")}, nil
 }
 
 func (sc *SC) Register() error {
@@ -62,7 +65,7 @@ func (sc *SC) Register() error {
 	header := messages.Header{
 		SrcServType: "postgresService",
 		DstServType: "sidecarService",
-		ServId:      0,
+		ServId:      []byte(""),
 		MsgId:       0,
 	}
 
@@ -81,8 +84,16 @@ func (sc *SC) Register() error {
 		return err
 	}
 
-	fmt.Printf("Registration message sent\n\tRegRsp: %v\n\tStatus: %d\n",
-		*rRsp, rRsp.Header.Status)
+	fmt.Printf("Registration message sent\n\tRegRsp: %v\n\tStatus: %d\n\tMsg: %s",
+		*rRsp, rRsp.RspHeader.Status, rRsp.Msg)
 
+	sc.srcServType = rRsp.Header.DstServType
+	sc.dstServType = rRsp.Header.SrcServType
+	sc.servId = rRsp.Header.ServId
+
+	return nil
+}
+
+func (sc *SC) Log(msg string) error {
 	return nil
 }

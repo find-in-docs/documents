@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/samirgadkari/sidecar v0.0.0-20220214020828-899d416cbcc4
+	github.com/samirgadkari/sidecar v0.0.0-20220215174623-ec759df6c6ed
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
 	google.golang.org/grpc v1.44.0
