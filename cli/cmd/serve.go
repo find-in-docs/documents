@@ -23,14 +23,16 @@ each request message`,
 
 		config.LoadConfig()
 
-		// thisServiceAddr := viper.GetString("thisServiceAddr")
 		sidecarServiceAddr := viper.GetString("sidecarServiceAddr")
 		_, sidecar, err := conn.Connect(sidecarServiceAddr)
 		if err != nil {
 			return
 		}
 
-		sidecar.Register()
+		err = sidecar.Register()
+		if err != nil {
+			return
+		}
 	},
 }
 
