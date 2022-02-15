@@ -33,6 +33,12 @@ each request message`,
 		if err != nil {
 			return
 		}
+
+		logMsgTest := "this is a log message test"
+		err = sidecar.Log(&logMsgTest)
+		if err != nil {
+			return
+		}
 	},
 }
 

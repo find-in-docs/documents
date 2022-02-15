@@ -13,10 +13,8 @@ import (
 )
 
 type SC struct {
-	client      messages.SidecarClient
-	srcServType string
-	dstServType string
-	servId      []byte
+	client messages.SidecarClient
+	header *messages.Header
 }
 
 func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
@@ -36,7 +34,14 @@ func Connect(serverAddr string) (*grpc.ClientConn, *SC, error) {
 	client := messages.NewSidecarClient(conn)
 	fmt.Printf("GRPC connection to sidecar created\n")
 
-	return conn, &SC{client, "", "", []byte("")}, nil
+	header := messages.Header{
+		SrcServType: "",
+		DstServType: "",
+		ServId:      []byte(""),
+		MsgId:       uint32(0),
+	}
+
+	return conn, &SC{client, &header}, nil
 }
 
 func (sc *SC) Register() error {
@@ -84,16 +89,39 @@ func (sc *SC) Register() error {
 		return err
 	}
 
-	fmt.Printf("Registration message sent\n\tRegRsp: %v\n\tStatus: %d\n\tMsg: %s",
+	fmt.Printf("Registration message sent\n\tRegRsp: %v\n\tStatus: %d\n\tMsg: %s\n",
 		*rRsp, rRsp.RspHeader.Status, rRsp.Msg)
 
-	sc.srcServType = rRsp.Header.DstServType
-	sc.dstServType = rRsp.Header.SrcServType
-	sc.servId = rRsp.Header.ServId
+	sc.header = &header
+	sc.header.SrcServType = rRsp.Header.DstServType
+	sc.header.DstServType = rRsp.Header.SrcServType
+	sc.header.ServId = rRsp.Header.ServId
+	sc.header.MsgId = 0
 
 	return nil
 }
 
-func (sc *SC) Log(msg string) error {
+func (sc *SC) Log(msg *string) error {
+
+	logMsg := messages.LogMsg{
+		Header: sc.header,
+		Msg:    *msg,
+	}
+
+	logRsp, err := sc.client.Log(context.Background(), &logMsg)
+	if err != nil {
+		fmt.Printf("Could not send log message:\n\tmsg: %s\n\terr: %v\n", msg, err)
+		os.Exit(-1)
+	}
+
+	if logRsp.Header.Status != uint32(messages.Status_OK) {
+		fmt.Printf("Error received while logging msg:\n\tmsg: %s\n\tStatus: %d\n",
+			msg, logRsp.Header.Status)
+		os.Exit(-1)
+	}
+
+	fmt.Printf("Log msg sent\n\tLogRsp: %v\n\tStatus: %d\n\tMsg: %s\n",
+		logRsp, logRsp.Header.Status, logRsp.Msg)
+
 	return nil
 }
