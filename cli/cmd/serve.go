@@ -5,8 +5,8 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/samirgadkari/postgresService/pkg/conn"
 	"github.com/samirgadkari/postgresService/pkg/conn/config"
+	"github.com/samirgadkari/sidecar/pkg/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -24,12 +24,7 @@ each request message`,
 		config.LoadConfig()
 
 		sidecarServiceAddr := viper.GetString("sidecarServiceAddr")
-		_, sidecar, err := conn.Connect(sidecarServiceAddr)
-		if err != nil {
-			return
-		}
-
-		err = sidecar.Register()
+		_, sidecar, err := client.Connect(sidecarServiceAddr)
 		if err != nil {
 			return
 		}
