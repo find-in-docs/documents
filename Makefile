@@ -3,6 +3,8 @@ SHELL := /bin/bash
 EXEDIR := ./bin
 BIN_NAME=./bin/db
 
+LATESTVER := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg -o 'v[^\]]*')"
+
 # The all target is the default target when make is called without any arguments.
 all: run
 
@@ -10,7 +12,7 @@ ${EXEDIR}:
 	mkdir ${EXEDIR}
 
 build: | ${EXEDIR}
-	# go get github.com/samirgadkari/sidecar@HEAD
+	go get github.com/samirgadkari/sidecar@$(LATESTVER)
 	go build -o ${BIN_NAME} cli/main.go
 
 run: build
@@ -20,5 +22,5 @@ clean:
 	go clean
 	rm ${BIN_NAME}
 	go clean -cache -modcache -i -r
-	go get github.com/samirgadkari/sidecar@HEAD
+	go get github.com/samirgadkari/sidecar@$(LATESTVER)
 	go mod tidy

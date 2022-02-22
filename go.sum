@@ -387,10 +387,8 @@ github.com/rs/zerolog v1.15.0/go.mod h1:xYTKnLHcpfU2225ny5qZjxnj9NvkumZYjJHlAThC
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/sagikazarmark/crypt v0.3.0/go.mod h1:uD/D+6UF4SrIR1uGEv7bBNkNqLGqUr43MRiaGWX1Nig=
-github.com/samirgadkari/sidecar v0.0.0-20220217004759-3c354c6baaab h1:567slLceL5GXPHTqH2rkVwsl4UkA9efZkopp4cZi9rw=
-github.com/samirgadkari/sidecar v0.0.0-20220217004759-3c354c6baaab/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
-github.com/samirgadkari/sidecar v0.0.0-20220217023014-fb4460418649 h1:6tb/GeQ0wL0/3i7tsjy5NDNIjJQWZf4gUOnmppQJPuc=
-github.com/samirgadkari/sidecar v0.0.0-20220217023014-fb4460418649/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
+github.com/samirgadkari/sidecar v0.0.0-20220217234533-336b078fc80b h1:elOHauxk4CcuHeRF3FpOiLipa8asbqFaYFK1JSypG8s=
+github.com/samirgadkari/sidecar v0.0.0-20220217234533-336b078fc80b/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
