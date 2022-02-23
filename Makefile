@@ -10,7 +10,14 @@ LATESTVER := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg -o 'v[^
 .PHONY: all build run clean
 
 # The all target is the default target when make is called without any arguments.
-all: run
+all: clean | run
+
+init:
+	go mod init github.com/samirgadkari/persistLogs
+	go get github.com/samirgadkari/sidecar
+	mkdir cli
+	cd cli && cobra init
+	cd cli && cobra add serve
 
 ${EXEDIR}:
 	mkdir ${EXEDIR}
