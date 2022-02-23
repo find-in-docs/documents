@@ -3,7 +3,15 @@ SHELL := /bin/bash
 EXEDIR := ./bin
 BIN_NAME=./bin/db
 
-LATESTVER := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg -o 'v[^\]]*')"
+EMPTY_STRING := ""
+LATESTVER_WITH_UPDATE := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg '.*?\s+.*?\s+\[(v.*?)\]$$' --replace '$$1')"
+UPDATED_LATESTVER := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg '.*?\s+(v.*?)$$' --replace '$$1')"
+
+ifeq ($(strip $(LATESTVER_WITH_UPDATE)), "")
+	LATESTVER := $(UPDATED_LATESTVER)
+else
+	LATESTVER := $(LATESTVER_WITH_UPDATE)
+endif
 
 # The .PHONY target will ignore any file that exists with the same name as the target
 # in your makefile, and built it regardless.
@@ -11,6 +19,11 @@ LATESTVER := "$(shell go list -m -u github.com/samirgadkari/sidecar | rg -o 'v[^
 
 # The all target is the default target when make is called without any arguments.
 all: clean | run
+
+printvars:
+	@echo "$(LATESTVER_WITH_UPDATE)"
+	@echo $(UPDATED_LATESTVER)
+	@echo $(LATESTVER)
 
 init:
 	go mod init github.com/samirgadkari/persistLogs
