@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/samirgadkari/postgresService v0.0.0-20220222184624-98d625cf1b0e
 	github.com/samirgadkari/sidecar v0.0.0-20220223215722-fec3dc3a4c46
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
