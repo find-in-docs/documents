@@ -5,7 +5,7 @@ Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/samirgadkari/postgresService/pkg/conn/config"
+	"github.com/samirgadkari/postgresService/pkg/config"
 	"github.com/samirgadkari/sidecar/pkg/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -11,7 +11,7 @@ func LoadConfig() {
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.postgresService")
+	viper.AddConfigPath("$HOME/.documents")
 	viper.AddConfigPath(".")
 
 	if err := viper.ReadInConfig(); err != nil {

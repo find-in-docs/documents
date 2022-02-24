@@ -398,6 +398,8 @@ github.com/samirgadkari/sidecar v0.0.0-20220223190923-e0745beda14a h1:hTwHadJp0n
 github.com/samirgadkari/sidecar v0.0.0-20220223190923-e0745beda14a/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
 github.com/samirgadkari/sidecar v0.0.0-20220223203514-3125d1411700 h1:kJBLapq6/lH2zuN2LZ6MlHZh0xBPqopW9gCX8s3nC2g=
 github.com/samirgadkari/sidecar v0.0.0-20220223203514-3125d1411700/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
+github.com/samirgadkari/sidecar v0.0.0-20220223215722-fec3dc3a4c46 h1:VJofPUZfGS7VgmBvWouyUT0bg49XQMX2i+hwkC5f+Ow=
+github.com/samirgadkari/sidecar v0.0.0-20220223215722-fec3dc3a4c46/go.mod h1:FSHzx9gS18Jfr0JINVQ8SxZV+Im9kSyAj6ePl6N+ZCE=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
