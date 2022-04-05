@@ -39,7 +39,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	topic := "search.log.v1"
+	topic := "search.data.v1"
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
