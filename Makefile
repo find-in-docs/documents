@@ -10,14 +10,14 @@ BIN_NAME=./bin/db
 # The all target is the default target when make is called without any arguments.
 all: clean | run
 
-cli:
-	mkdir cli
-	cd cli && cobra init
-	cd cli && cobra add serve
-
 init:
-	go mod init github.com/samirgadkari/persistLogs
+	- rm go.mod
+	- rm go.sum
+	go mod init github.com/samirgadkari/documents
+	go mod edit -replace=github.com/samirgadkari/sidecar@v0.0.0-unpublished=../sidecar
+	go mod tidy -compat=1.17
 	go get github.com/samirgadkari/sidecar@v0.0.0-unpublished
+	go mod tidy -compat=1.17
 
 ${EXEDIR}:
 	mkdir ${EXEDIR}
@@ -32,14 +32,14 @@ ${EXEDIR}:
 
 build: | ${EXEDIR}
 	go get github.com/samirgadkari/sidecar@v0.0.0-unpublished
-	go build -o ${BIN_NAME} cli/main.go
+	go build -o ${BIN_NAME} pkg/main/main.go
 
 run: build
-	./${BIN_NAME} serve
+	./${BIN_NAME}
 
 clean:
 	go clean
-	rm ${BIN_NAME}
 	go clean -cache -modcache -i -r
-	go get github.com/samirgadkari/sidecar@v0.0.0-unpublished
-	go mod tidy
+	- rm ${BIN_NAME}
+	go get -d github.com/samirgadkari/sidecar@v0.0.0-unpublished
+	go mod tidy -compat=1.17

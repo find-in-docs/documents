@@ -10,7 +10,10 @@ import (
 )
 
 type DB struct {
-	conn *pgx.Conn
+	conn                  *pgx.Conn
+	documentsSchema       string
+	wordToIntSchema       string
+	wordIdsToDocIdsSchema string
 }
 
 type WordInt uint64
@@ -40,18 +43,38 @@ func DBConnect() (*DB, error) {
 		return nil, err
 	}
 
-	db := DB{conn}
+	documentsSchema := `(docid bigint,
+			wordints bigint[],
+			inputdocId varchar(25) unique,
+			userid varchar(25),
+			businessId varchar(25),
+			stars real, 
+			useful smallint,
+			funny smallint,
+			cool smallint,
+			text text,
+			date varchar(25))`
+
+	wordToIntSchema := `(word text unique, int bigint)`
+	wordIdsToDocIdsSchema := `(wordid bigint unique, docids bigint[])`
+
+	db := DB{
+		conn:                  conn,
+		documentsSchema:       documentsSchema,
+		wordToIntSchema:       wordToIntSchema,
+		wordIdsToDocIdsSchema: wordIdsToDocIdsSchema,
+	}
 
 	return &db, nil
 }
 
-func (db *DB) createTable(tableName string, schema string) {
+func (db *DB) createTable(tableName string) {
 
 	checkIfExists := `select 'public.` + tableName + `'::regclass;`
 	if _, err := db.conn.Exec(context.Background(), checkIfExists); err != nil {
 		fmt.Printf("Table %s does not exist, so create it.\n", tableName)
 
-		createString := `create table ` + tableName + ` ` + schema + `;`
+		createString := `create table ` + tableName + ` ` + db.documentsSchema + `;`
 		if _, err := db.conn.Exec(context.Background(), createString); err != nil {
 			fmt.Printf("Failed to create the schema. err: %v\n", err)
 			os.Exit(-1)
@@ -71,6 +94,7 @@ func (db *DB) CreateTable(tableName string, schema string) error {
 		fmt.Printf("Table %s does not exist, so create it.\n", tableName)
 
 		createString := `create table ` + tableName + ` ` + schema + `;`
+		fmt.Printf("createString: %s\n", createString)
 		if _, err := db.conn.Exec(context.Background(), createString); err != nil {
 			fmt.Printf("Failed to create the schema. err: %v\n", err)
 			return err
@@ -80,20 +104,14 @@ func (db *DB) CreateTable(tableName string, schema string) error {
 	return nil
 }
 
+func (db *DB) CreateDocumentsTable() error {
+
+	return db.CreateTable("documents", db.documentsSchema)
+}
+
 func (db *DB) StoreData(doc *Doc, tableName string, wordInts []WordInt) error {
 
-	createDocString := `(docid,
-			wordints,
-			inputdocId,
-			userid,
-			businessId,
-			stars, 
-			useful,
-			funny,
-			cool,
-			text,
-			date)`
-	insertStatement := `insert into ` + tableName + ` ` + createDocString +
+	insertStatement := `insert into ` + tableName + ` ` + db.documentsSchema +
 		` values ($1, $2, $3, $4, $5, 
 		 $6, $7, $8, $9, $10, $11)
 		 on conflict(inputdocId) do nothing;`
@@ -111,10 +129,9 @@ func (db *DB) StoreData(doc *Doc, tableName string, wordInts []WordInt) error {
 
 func (db *DB) StoreWordIntMappings(wordToIntTable string, wordToInt map[string]WordInt) error {
 
-	wordToIntSchema := `(word text unique, int bigint)`
 	createWordToIntString := `(word, int)`
 
-	db.CreateTable(wordToIntTable, wordToIntSchema)
+	db.CreateTable(wordToIntTable, db.wordToIntSchema)
 
 	wordToIntInsertStatement := `insert into ` + wordToIntTable + ` ` + createWordToIntString +
 		`values ($1, $2)
@@ -133,9 +150,7 @@ func (db *DB) StoreWordIntMappings(wordToIntTable string, wordToInt map[string]W
 func (db *DB) StoreWordToDocMappings(wordIdsToDocIdsTable string,
 	wordToDocs map[WordInt][]DocumentId) error {
 
-	wordIdsToDocIdsSchema := `(wordid bigint unique, docids bigint[])`
-
-	db.CreateTable(wordIdsToDocIdsTable, wordIdsToDocIdsSchema)
+	db.CreateTable(wordIdsToDocIdsTable, db.wordIdsToDocIdsSchema)
 
 	// In this update statement, the excluded docids are the ones that were not
 	// inserted in.
