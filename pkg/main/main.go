@@ -6,11 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/samirgadkari/documents/pkg/config"
-	"github.com/samirgadkari/documents/pkg/data"
-	"github.com/samirgadkari/sidecar/pkg/client"
-	"github.com/samirgadkari/sidecar/pkg/utils"
-	pb "github.com/samirgadkari/sidecar/protos/v1/messages"
+	"github.com/find-in-docs/documents/pkg/config"
+	"github.com/find-in-docs/documents/pkg/data"
+	"github.com/find-in-docs/sidecar/pkg/client"
+	"github.com/find-in-docs/sidecar/pkg/utils"
+	pb "github.com/find-in-docs/sidecar/protos/v1/messages"
 )
 
 const (
