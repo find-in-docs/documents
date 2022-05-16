@@ -1,12 +1,12 @@
-module github.com/samirgadkari/documents
+module github.com/find-in-docs/documents
 
 go 1.17
 
-replace github.com/samirgadkari/sidecar v0.0.0-unpublished => ../sidecar
+replace github.com/find-in-docs/sidecar v0.0.0-unpublished => ../sidecar
 
 require (
 	github.com/jackc/pgx/v4 v4.15.0
-	github.com/samirgadkari/sidecar v0.0.0-unpublished
+	github.com/find-in-docs/sidecar v0.0.0-unpublished
 	github.com/spf13/viper v1.10.1
 )
 
