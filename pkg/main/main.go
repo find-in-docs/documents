@@ -10,7 +10,6 @@ import (
 	"github.com/find-in-docs/documents/pkg/data"
 	"github.com/find-in-docs/sidecar/pkg/client"
 	"github.com/find-in-docs/sidecar/pkg/utils"
-	pb "github.com/find-in-docs/sidecar/protos/v1/messages"
 )
 
 const (
@@ -39,23 +38,38 @@ func main() {
 		os.Exit(-1)
 	}
 
-	topic := "search.data.v1"
+	topic := "search.doc.import.v1"
+	workQueue := "uploadWorkQueue"
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err = sidecar.ProcessSubMsgs(ctx, topic,
-		allTopicsRecvChanSize, func(m *pb.SubTopicResponse) {
-
-			msg := fmt.Sprintf("Received from sidecar:\n\t%s", m.String())
-			fmt.Printf("%s\n", msg)
-
-			// db.StoreData(m.Header, msg, tableName)
-		})
+	err = sidecar.SubJS(ctx, topic, workQueue, allTopicsRecvChanSize)
 	if err != nil {
-		fmt.Printf("Error processing subscription messages:\n\ttopic: %s\n\terr: %v\n",
-			topic, err)
+		fmt.Printf("Error subscribing to topic: %s err: %v\n", topic, err)
+		os.Exit(-1)
 	}
+
+	time.Sleep(time.Second)
+	recvCh := sidecar.RecvJS(ctx, topic, workQueue)
+	count := 0
+	for {
+		select {
+		case m, ok := <-recvCh:
+			if !ok {
+				fmt.Printf("Error receiving from channel - cancelling context\n")
+				cancel()
+				break
+			}
+			shortMsg := string(m.Response.Msg)
+			fmt.Printf("Received message: %s\n", shortMsg[:130])
+			count++
+		case <-ctx.Done():
+			break
+		}
+	}
+
+	fmt.Printf(" >>>>>>> Received %d messages\n", count)
 
 	/* This is an example of how to publish a message. It is a log message because for now
 	* it is the only type that is received (by this same persistLogs service).
@@ -90,7 +104,7 @@ func main() {
 	// Signal that we want the process subscription goroutines to end.
 	// This cancellation causes the goroutines to unsubscribe from the topic
 	// before they end themselves.
-	cancel()
+	// cancel()
 
 	sleepDur, _ := time.ParseDuration("3s")
 	fmt.Printf("Sleeping for %s seconds\n", sleepDur)
