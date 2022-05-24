@@ -13,10 +13,7 @@ all: clean | run
 init:
 	- rm go.mod
 	- rm go.sum
-	go mod init github.com/samirgadkari/documents
-	go mod edit -replace=github.com/samirgadkari/sidecar@v0.0.0-unpublished=../sidecar
-	go mod tidy -compat=1.17
-	go get github.com/samirgadkari/sidecar@v0.0.0-unpublished
+	go mod init github.com/find-in-docs/documents
 	go mod tidy -compat=1.17
 
 ${EXEDIR}:
@@ -31,7 +28,6 @@ ${EXEDIR}:
 # github.com/samirgadkari/sidecar
 
 build: | ${EXEDIR}
-	go get github.com/samirgadkari/sidecar@v0.0.0-unpublished
 	go build -o ${BIN_NAME} pkg/main/main.go
 
 run: build
@@ -41,5 +37,4 @@ clean:
 	go clean
 	go clean -cache -modcache -i -r
 	- rm ${BIN_NAME}
-	go get -d github.com/samirgadkari/sidecar@v0.0.0-unpublished
 	go mod tidy -compat=1.17
