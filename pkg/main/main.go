@@ -14,6 +14,7 @@ import (
 
 const (
 	allTopicsRecvChanSize = 32
+	maxMsgLen             = 130
 )
 
 func main() {
@@ -62,7 +63,11 @@ func main() {
 				break
 			}
 			shortMsg := string(m.Response.Msg)
-			fmt.Printf("Received message: %s\n", shortMsg[:130])
+			l := maxMsgLen
+			if len(shortMsg) < maxMsgLen {
+				l = len(shortMsg)
+			}
+			fmt.Printf("Received message: %s\n", shortMsg[:l])
 			count++
 		case <-ctx.Done():
 			break
