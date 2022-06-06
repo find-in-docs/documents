@@ -10,6 +10,7 @@ import (
 	"github.com/find-in-docs/documents/pkg/data"
 	"github.com/find-in-docs/sidecar/pkg/client"
 	"github.com/find-in-docs/sidecar/pkg/utils"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -39,42 +40,65 @@ func main() {
 		os.Exit(-1)
 	}
 
-	topic := "search.doc.import.v1"
-	workQueue := "uploadWorkQueue"
+	subject := viper.GetString("nats.jetstream.subject")
+	durableName := viper.GetString("nats.jetstream.consumer.durableName")
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err = sidecar.SubJS(ctx, topic, workQueue, allTopicsRecvChanSize)
+	recvDocs, err := sidecar.ReceiveDocs(ctx, subject, durableName)
 	if err != nil {
-		fmt.Printf("Error subscribing to topic: %s err: %v\n", topic, err)
+		fmt.Printf("%s\n", err)
 		os.Exit(-1)
 	}
 
-	time.Sleep(time.Second)
-	recvCh := sidecar.RecvJS(ctx, topic, workQueue)
-	count := 0
 	for {
 		select {
-		case m, ok := <-recvCh:
+		case doc, ok := <-recvDocs:
 			if !ok {
-				fmt.Printf("Error receiving from channel - cancelling context\n")
-				cancel()
-				break
+				fmt.Printf("Receive docs channel closed:\n\t"+
+					"Reason: %s\n", ctx.Err())
+				os.Exit(-1)
 			}
-			shortMsg := string(m.Response.Msg)
-			l := maxMsgLen
-			if len(shortMsg) < maxMsgLen {
-				l = len(shortMsg)
-			}
-			fmt.Printf("Received message: %s\n", shortMsg[:l])
-			count++
+
+			fmt.Printf("doc: %v\n", doc)
+
 		case <-ctx.Done():
 			break
 		}
 	}
 
-	fmt.Printf(" >>>>>>> Received %d messages\n", count)
+	/*
+		err = sidecar.AddJS(ctx, subject, durableName)
+		if err != nil {
+			fmt.Printf("Error subscribing to subject: %s err: %v\n", subject, err)
+			os.Exit(-1)
+		}
+
+		time.Sleep(time.Second)
+		recvCh := sidecar.RecvJS(context.Background(), subject, durableName)
+		count := 0
+		for {
+			select {
+			case m, ok := <-recvCh:
+				if !ok {
+					fmt.Printf("Error receiving from channel\n")
+					break
+				}
+				shortMsg := string(m.Response.Msg)
+				l := maxMsgLen
+				if len(shortMsg) < maxMsgLen {
+					l = len(shortMsg)
+				}
+				fmt.Printf("Received message: %s\n", shortMsg[:l])
+				count++
+			case <-ctx.Done():
+				break
+			}
+		}
+
+		fmt.Printf(" >>>>>>> Received %d messages\n", count)
+	*/
 
 	/* This is an example of how to publish a message. It is a log message because for now
 	* it is the only type that is received (by this same persistLogs service).
