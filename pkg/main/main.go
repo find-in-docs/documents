@@ -61,7 +61,7 @@ func main() {
 				os.Exit(-1)
 			}
 
-			fmt.Printf("doc: %v\n", doc)
+			fmt.Printf("-- doc.MsgNumber: %d --", doc.MsgNumber)
 
 		case <-ctx.Done():
 			break
