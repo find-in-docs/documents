@@ -1,7 +1,7 @@
 # This makes sure the commands are run within a BASH shell.
 SHELL := /bin/bash
 EXEDIR := ./bin
-BIN_NAME=./bin/db
+BIN_NAME=./bin/documents
 
 # The .PHONY target will ignore any file that exists with the same name as the target
 # in your makefile, and built it regardless.
@@ -38,3 +38,7 @@ clean:
 	go clean -cache -modcache -i -r
 	- rm ${BIN_NAME}
 	go mod tidy -compat=1.17
+
+docker:
+	cd ..; docker build --no-cache -t documents:v0.0.1 . -f documents/Dockerfile
+
