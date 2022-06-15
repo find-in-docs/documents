@@ -54,14 +54,14 @@ func main() {
 
 	for {
 		select {
-		case doc, ok := <-recvDocs:
+		case _, ok := <-recvDocs:
 			if !ok {
 				fmt.Printf("Receive docs channel closed:\n\t"+
 					"Reason: %s\n", ctx.Err())
 				os.Exit(-1)
 			}
 
-			fmt.Printf("-- doc.MsgNumber: %d --", doc.MsgNumber)
+			fmt.Printf(".")
 
 		case <-ctx.Done():
 			break
