@@ -8,8 +8,10 @@ import (
 
 	"github.com/find-in-docs/documents/pkg/config"
 	"github.com/find-in-docs/documents/pkg/data"
+	"github.com/find-in-docs/documents/pkg/transform"
 	"github.com/find-in-docs/sidecar/pkg/client"
 	"github.com/find-in-docs/sidecar/pkg/utils"
+	pb "github.com/find-in-docs/sidecar/protos/v1/messages"
 	"github.com/spf13/viper"
 )
 
@@ -18,9 +20,33 @@ const (
 	maxMsgLen             = 130
 )
 
+func copyDoc(d *data.Doc, s *pb.Doc) {
+
+	d.DocId = data.DocumentId(s.DocId)
+	d.WordInts = make([]data.WordInt, len(s.WordInts))
+	for i, v := range s.WordInts {
+		d.WordInts[i] = data.WordInt(v)
+	}
+	d.InputDocId = s.InputDocId
+	d.UserId = s.UserId
+	d.BusinessId = s.BusinessId
+	d.Stars = s.Stars
+	d.Useful = uint16(s.Useful)
+	d.Funny = uint16(s.Funny)
+	d.Cool = uint16(s.Cool)
+	d.Text = s.Text
+	d.Date = s.Date
+}
+
 func main() {
 
+	var wordInts []data.WordInt
+	var wordToInt map[string]data.WordInt
+
 	config.Load()
+
+	stopwords := data.LoadStopwords(viper.GetString("englishStopwordsFile"))
+	wordsToInts := transform.WordsToInts(stopwords)
 
 	// Setup database
 	db, err := data.DBConnect()
@@ -52,20 +78,54 @@ func main() {
 		os.Exit(-1)
 	}
 
-	for {
-		select {
-		case _, ok := <-recvDocs:
-			if !ok {
-				fmt.Printf("Receive docs channel closed:\n\t"+
-					"Reason: %s\n", ctx.Err())
-				os.Exit(-1)
+	processDocs := make(chan *data.Doc)
+
+	go func() {
+	LOOP:
+		for {
+			select {
+			case docs, ok := <-recvDocs:
+				if !ok {
+					fmt.Printf("Receive docs channel closed:\n\t"+
+						"Reason: %s\n", ctx.Err())
+					os.Exit(-1)
+				}
+
+				fmt.Printf(".")
+
+				for _, doc := range docs.Documents.Doc {
+					wordInts, wordToInt = wordsToInts(doc.Text)
+
+					var d data.Doc
+					copyDoc(&d, doc)
+					d.WordInts = wordInts
+					processDocs <- &d
+
+					if err := db.StoreData(&d, tableName, wordInts); err != nil {
+						break
+					}
+				}
+
+			case <-ctx.Done():
+
+				if err := db.DBDisconnect(); err != nil {
+					break LOOP
+				}
+
+				break LOOP
 			}
-
-			fmt.Printf(".")
-
-		case <-ctx.Done():
-			break
 		}
+	}()
+
+	if err := db.StoreWordIntMappings("word_to_int", wordToInt); err != nil {
+		fmt.Printf("Error storing word-to-int mappings: %v", err)
+		os.Exit(-1)
+	}
+
+	fmt.Printf("Transforming WordToDocs\n")
+	if err := transform.WordToDocs(processDocs, db.StoreWordToDocMappings); err != nil {
+		fmt.Printf("Error creating word-to-doc mapping: %v", err)
+		os.Exit(-1)
 	}
 
 	/*

@@ -12,11 +12,12 @@ import (
 type DB struct {
 	conn                  *pgx.Conn
 	documentsSchema       string
+	createDocString       string
 	wordToIntSchema       string
 	wordIdsToDocIdsSchema string
 }
 
-type WordInt uint64
+type WordInt int64
 type DocumentId WordInt
 
 type Doc struct {
@@ -55,12 +56,25 @@ func DBConnect() (*DB, error) {
 			text text,
 			date varchar(25))`
 
+	createDocString := `(docid,
+			wordints,
+			inputdocId,
+			userid,
+			businessId,
+			stars, 
+			useful,
+			funny,
+			cool,
+			text,
+			date)`
+
 	wordToIntSchema := `(word text unique, int bigint)`
 	wordIdsToDocIdsSchema := `(wordid bigint unique, docids bigint[])`
 
 	db := DB{
 		conn:                  conn,
 		documentsSchema:       documentsSchema,
+		createDocString:       createDocString,
 		wordToIntSchema:       wordToIntSchema,
 		wordIdsToDocIdsSchema: wordIdsToDocIdsSchema,
 	}
@@ -111,7 +125,7 @@ func (db *DB) CreateDocumentsTable() error {
 
 func (db *DB) StoreData(doc *Doc, tableName string, wordInts []WordInt) error {
 
-	insertStatement := `insert into ` + tableName + ` ` + db.documentsSchema +
+	insertStatement := `insert into ` + tableName + ` ` + db.createDocString +
 		` values ($1, $2, $3, $4, $5, 
 		 $6, $7, $8, $9, $10, $11)
 		 on conflict(inputdocId) do nothing;`
