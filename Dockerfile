@@ -1,28 +1,65 @@
-# Basic image
-FROM golang:1.17 as builder
 
-WORKDIR /
+# Base image
+FROM golang:1.19.5-alpine3.17
 
-COPY sidecar/ /sidecar
+# Specify work directory on the image.
+# All commands will refer to this work directory from now on below.
+WORKDIR /app
 
-# RUN go get -d -v github.com/find-in-docs/documents/pkg/config
-# RUN go get -d -v github.com/find-in-docs/documents/pkg/data
-# RUN go get -d -v github.com/find-in-docs/sidecar/pkg/client
-# RUN go get -d -v github.com/find-in-docs/sidecar/pkg/utils
-# RUN go get -d -v github.com/spf13/viper
-# RUN go get -d -v github.com/find-in-docs/sidecar/pkg/utils
-# RUN go get -d -v github.com/find-in-docs/sidecar/protos/v1/messages
- 
-COPY documents/ /service
+# Copy local go.mod and go.sum files into the image
+COPY go.mod ./
+COPY go.sum ./
 
-WORKDIR /service
+# Clean the modcache
+# This is not required all the time. You should run this only
+# when your modcache contains older versions that you cannot upgrade for some reason.
+# RUN go clean -cache -modcache -i -r
 
-RUN go build -o bin/documents pkg/main/main.go
+# This should always be set. This way, instead of getting packages from Google servers,
+# you get them directly from github. This way, there is no sync lag between
+# your changes on github and your packages on Google servers. Sometimes, it takes
+# more than a day for Google servers to catch up to your changes.
+# RUN go env -w GOPROXY=direct 
 
-FROM alpine:latest
+# Download required packages in the image
+# RUN go mod download
 
-WORKDIR /service
+# Copy source code into the image
+COPY pkg/ /app/pkg/
 
-COPY --from=builder /service/bin/documents ./
+COPY english_stopwords.json ./
 
-CMD [ "/service/documents" ]
+# This file contains the DNS server information. It is used by the documents
+# service to:
+#   - Complete the Fully Qualified Domain Name of the request
+#   - Locate the IP address of the DNS server
+COPY manifests/minikube/documents_resolv.conf /etc/resolv.conf
+
+RUN go build -o documents pkg/main/main.go
+
+RUN mkdir -p /var/lib/postgres/data && \
+  chmod 0700 /var/lib/postgres/data
+
+RUN apk add --update util-linux
+# RUN whereis initdb
+
+# RUN addgroup -S postgres && adduser -S postgres -G postgres
+# USER postgres
+
+# RUN initdb -D /var/lib/postgres/data && \
+#    RUN pg_ctl start -D /var/lib/postgres/data
+
+# To see the output of the commands in this file, do:
+# docker build --progress=plain --no-cache -t documents -f ./Dockerfile .
+# RUN pwd >&2
+# RUN ls -l >&2
+
+RUN apk update && \
+    apk add tree && \
+    apk add bash && \
+    apk add curl wget
+
+# By default the ENTRYPOINT is /bin/sh -c.
+# We specify CMD to pass to the ENTRYPOINT as an argument,
+# so the following command results in /bin/sh -c ./documents
+CMD ["./documents"]
