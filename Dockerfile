@@ -33,7 +33,7 @@ COPY english_stopwords.json ./
 # service to:
 #   - Complete the Fully Qualified Domain Name of the request
 #   - Locate the IP address of the DNS server
-COPY manifests/minikube/documents_resolv.conf /etc/resolv.conf
+COPY manifests/minikube/resolv.conf /etc/resolv.conf
 
 RUN go build -o documents pkg/main/main.go
 
